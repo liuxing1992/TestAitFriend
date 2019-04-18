@@ -3,7 +3,9 @@ package com.example.admin.testaitfriend;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements AitTextChangeList
     private EditText messageEditText;
     private TextView mTextView1, mTextView2;
     private boolean likeQQ = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,19 +59,28 @@ public class MainActivity extends AppCompatActivity implements AitTextChangeList
 
     @Override
     public void onTextAdd(String content, int start, int length) {
-//        System.out.println("---"+content);
-//        SpannableString ss = new SpannableString(content);
-//        final Bitmap bitmap = getNameBitmap(this , content);
-//        ss.setSpan(new DynamicDrawableSpan() {
-//            @Override
-//            public Drawable getDrawable() {
-//                BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources() , bitmap);
-//                bitmapDrawable.setBounds(0, 0, bitmap.getWidth(), bitmap.getHeight());
-//                return bitmapDrawable;
-//            }
-//        } ,0 , content.length()-1 , Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        messageEditText.append(ss);
-        messageEditText.getEditableText().insert(start, content);
+
+        if (!likeQQ)
+            messageEditText.getEditableText().insert(start, content);
+        else{
+            if (start >= 1) {
+                //把输入法输入的@删除 自己添加一个@
+                messageEditText.getText().replace(start - 1, start, "");
+            }
+            SpannableString ss = new SpannableString("@"+content);
+            final Bitmap bitmap = getNameBitmap(this , "@"+content);
+            ss.setSpan(new DynamicDrawableSpan() {
+                @Override
+                public Drawable getDrawable() {
+                    BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources() , bitmap);
+                    bitmapDrawable.setBounds(0, 0, bitmapDrawable.getIntrinsicWidth(), bitmapDrawable.getIntrinsicHeight());
+                    return bitmapDrawable;
+                }
+            } ,0 , ss.length() , Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            messageEditText.append(ss);
+            messageEditText.append(" ");
+        }
+
     }
 
     @Override
@@ -89,13 +101,13 @@ public class MainActivity extends AppCompatActivity implements AitTextChangeList
         Paint paint = new Paint();
         paint.setAntiAlias(true);
         // 设置字体画笔的颜色
-        // paint.setColor(context.getResources().getColor(R.color.transculent_black));
-        paint.setTextSize(30);
+         paint.setColor(Color.WHITE);
+        paint.setTextSize(48);
         Rect rect = new Rect();
         paint.getTextBounds(name, 0, name.length(), rect);
         // 获取字符串在屏幕上的长度
         int width = (int) (paint.measureText(name));
-        final Bitmap bmp = Bitmap.createBitmap(width + 5, rect.height() + 5, Bitmap.Config.ARGB_8888);// 长宽+5，可调
+        final Bitmap bmp = Bitmap.createBitmap(width + 10, rect.height() + 10, Bitmap.Config.ARGB_8888);//
         Canvas canvas = new Canvas(bmp);
         canvas.drawColor(context.getResources().getColor(R.color.colorPrimary));
         canvas.drawText(name, rect.left, rect.height() - rect.bottom, paint);
